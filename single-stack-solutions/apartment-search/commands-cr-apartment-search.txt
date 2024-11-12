@@ -1,0 +1,58 @@
+====================================================
+BEFORE FIRST DEPLOY
+====================================================
+1) => Install node libraries
+npm --prefix ./layers/layer-cr-open-ai-client/nodejs install
+npm --prefix ./layers/layer-cr-open-sendgrid-email-client/nodejs install
+npm --prefix ./layers/layer-cr-twilio-client/nodejs install
+
+2) => Save Secrets to AWS SecretsManager
+
+Use AWS Secrets Manager and create a secret for this stack. The secret MUST BE NAMED CR_APT_SEARCH and have the following SecretStrings:
+
+OPENAI_API_KEY
+TWILIO_ACCOUNT_SID
+TWILIO_AUTH_TOKEN
+SENDGRID_API_KEY
+TWILIO_EMAIL_FROM_ADDRESS
+
+The first SecretString is required to access the LLM. The next two are required to send SMS messages and the final two are needed to send emails. If you do not want to send SMS or email, just put in fake data for those strings.
+
+====================================================
+DEPLOY TEMPLATE
+====================================================
+Run `sam build` from this directory every time before deploying.
+
+Run 
+sam deploy --stack-name CR-APT-SEARCH --template template.yaml --profile $(cat ../../aws-profile.profile) --capabilities CAPABILITY_NAMED_IAM
+
+* The first time you deploy, add `--guided` (`sam deploy --guided --stack-name...`) to the above command to generate a configuration file. All subsequent commands do not need the --guided.
+
+====================================================
+LINK AWS REST API ENDPOINT TO TWILIO
+====================================================
+Take Output from the stack called "TwimlAPI" and assign it to the Webhook for Voice handler for their desired phone number.
+
+====================================================
+DATA LOADING
+====================================================
+aws dynamodb put-item --table-name CR-APT-SEARCH-ConversationRelayAppDatabase --item "$(node ./configuration/dynamo-loaders/apartmentSearchUseCase.js | cat)" --profile $(cat ../../aws-profile.profile)
+aws dynamodb put-item --table-name CR-APT-SEARCH-ConversationRelayAppDatabase --item "$(node ./configuration/dynamo-loaders/apartmentData.js | cat)" --profile $(cat ../../aws-profile.profile)
+
+====================================================
+REFRESH APARTMENT LISTINGS (once the stack has deployed once and whenever you need)
+====================================================
+aws lambda invoke \
+    --cli-binary-format raw-in-base64-out \
+    --function-name CR-APT-SEARCH-RefreshApartmentAppointmentsFunction \
+    --payload '{ "foo": "bar" }' \
+    --profile $(cat ../../aws-profile.profile) \
+    lambda-invoke-response.json
+
+====================================================
+OPTIONALLY ADD A PROFILE
+First, edit this file [ ./configuration/dynamo-loaders/profile-example.js ]
+with your information. The primary key is the phone number in E164
+format! 
+====================================================
+aws dynamodb put-item --table-name CR-APT-SEARCH-ConversationRelayAppDatabase --item "$(node ./configuration/dynamo-loaders/profile-example.js | cat)" --profile $(cat ../../aws-profile.profile)

@@ -135,8 +135,8 @@ export const lambdaHandler = async (event, context) => {
              * 
              * {
              *  "type": "setup",
-             *  "sessionId": "VX8f1ae211b0404ab3905b4aa470bb9a36",
-             *  "callSid": "CA3327b12c071c64297e9ea5108e0a9b29",
+             *  "sessionId": "VXxxxxx",
+             *  "callSid": "CAxxxxx",
              *  "parentCallSid": null,
              *  "from": "+14085551212",
              *  "to": "+18881234567",
@@ -145,8 +145,8 @@ export const lambdaHandler = async (event, context) => {
              *  "direction": "inbound",
              *  "callType": "PSTN",
              *  "callStatus": "IN-PROGRESS",
-             *  "accountSid": "ACe6ee4b20287adb6e5c9ec4169b56d2bb",
-             *  "applicationSid": "AP3c07638b2397e5e3f1e459fb1cc10000"
+             *  "accountSid": "ACxxx",
+             *  "applicationSid": "APxxxxx"
              * }
              * 
              * This implementation does utilize the setup event.

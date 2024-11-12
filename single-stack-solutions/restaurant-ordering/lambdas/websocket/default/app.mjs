@@ -145,7 +145,7 @@ export const lambdaHandler = async (event, context) => {
              *  "direction": "inbound",
              *  "callType": "PSTN",
              *  "callStatus": "IN-PROGRESS",
-             *  "accountSid": "ACxxx",
+             *  "accountSid": "",
              *  "applicationSid": "APxxxxx"
              * }
              * 
